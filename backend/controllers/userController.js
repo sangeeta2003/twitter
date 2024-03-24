@@ -88,3 +88,27 @@ export const logout = (req, res) => {
     success: true,
   });
 };
+
+export const bookmark = async (req, res) => {
+  try {
+    const loggedInId = req.body.id;
+    const tweetId = req.params.id;
+
+    const user = await User.findById(loggedInId);
+    if (user.bookmarks.includes(tweetId)) {
+      await User.findByIdAndUpdate(loggedInId, {
+        $pull: { bookmarks: tweetId },
+      });
+      return res.status(200).json({ message: "Removed from bookmarks" });
+      // remove
+    } else {
+      await User.findByIdAndUpdate(loggedInId, {
+        $push: { bookmarks: tweetId },
+      });
+      return res.status(200).json({ message: "Saved in bookmarks" });
+      // remove
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

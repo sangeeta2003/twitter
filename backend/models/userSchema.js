@@ -24,7 +24,11 @@ const userSchema = new mongoose.Schema({
     following:{
         type:Array,
         default:[]
-    }
+    },
+    bookmarks:{
+        type:Array,
+        default:[]
+    },
 },{timestamps:true})
 
 export const User = mongoose.model("User",userSchema)
