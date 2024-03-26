@@ -82,6 +82,7 @@ export const Login = async (req, res) => {
   }
 };
 
+
 export const logout = (req, res) => {
   return res.cookie("token", "", { expiresIn: new Date(Date.now()) }).json({
     message: "user logged out succcessfully",
@@ -142,3 +143,35 @@ export const getOtherUser = async (req, res) => {
   } catch {error}
   console.log(error)
 };
+
+export const follow = async(req,res)=>{
+  try{
+const loggedinUserId = req.body.id;
+const userId = req.params.id;
+const loggedinUser = await User.findById(loggedinUserId);
+
+const user = await User.findById(userId);
+if(!user.followers.includes(loggedinUserId)){
+  await User.findByIdAndUpdate(userId, { $push: { followers: loggedinUserId } });
+    await User.findByIdAndUpdate(loggedinUserId, { $push: { following: userId } });
+
+} else{
+  return res.status(400).json({
+    message:`User already followed to ${user.name}`
+  })
+
+};
+return res.status(200).json({
+  message:`${loggedinUser.name} justo follow to ${user.name}`,
+  success:true
+});
+
+
+
+  }catch(error){
+console.log(error)
+  }
+}
+
+
+
