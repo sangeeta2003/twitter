@@ -58,3 +58,22 @@ export const likeOrDislike = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export const getAlltweets = async(req,res) =>{
+  try{
+const id = req.params.id;
+const loggedinUser = await User.findById(id);
+const loggedinUserTweets = await Tweet.find({userId:id});
+const followinguserTweet = await Promise.all(loggedinUser.following.map((otherUsersId)=>{
+  return Tweet.find({userId:otherUsersId})
+}));
+return res.status(200).json({
+  tweets:loggedinUserTweets.concat(...followinguserTweet)
+})
+
+  }
+  catch(error){
+    console.log(error)
+  }
+}

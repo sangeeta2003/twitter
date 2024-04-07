@@ -193,7 +193,7 @@ export const unfollow = async (req, res) => {
       );
 
       const user = await User. findByIdAndUpdate(
-          userId,
+          userId ,
           { $pull: { followers: loggedInUserId } },
           { new: true }
       );
