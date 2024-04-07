@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 dotenv.config({
   path: "../controllers/.env",
 });
-export const Register = async (req, res) => {
+export const Register = async(req, res) => {
   try {
     const { name, email, username, password } = req.body;
     if (!name || !username || !email || !password) {
