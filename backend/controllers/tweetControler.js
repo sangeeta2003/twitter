@@ -1,4 +1,5 @@
 import { Tweet } from "../models/tweetSchema.js";
+import { User } from '../models/userSchema.js';
 
 export const createTweet = async (req, res) => {
   try {
@@ -60,20 +61,34 @@ export const likeOrDislike = async (req, res) => {
 };
 
 
-export const getAlltweets = async(req,res) =>{
-  try{
-const id = req.params.id;
-const loggedinUser = await User.findById(id);
-const loggedinUserTweets = await Tweet.find({userId:id});
-const followinguserTweet = await Promise.all(loggedinUser.following.map((otherUsersId)=>{
-  return Tweet.find({userId:otherUsersId})
-}));
-return res.status(200).json({
-  tweets:loggedinUserTweets.concat(...followinguserTweet)
-})
+export const getAlltweets = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const loggedinUser = await User.findById(id);
 
+    
+    if (!loggedinUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const loggedinUserTweets = await Tweet.find({ userId: id });
+
+    
+    if (!loggedinUser.following) {
+      return res.status(200).json({ tweets: loggedinUserTweets });
+    }
+
+    const followingUserTweets = await Promise.all(
+      loggedinUser.following.map((otherUserId) => {
+        return Tweet.find({ userId: otherUserId });
+      })
+    );
+
+    return res.status(200).json({
+      tweets: loggedinUserTweets.concat(...followingUserTweets),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
-  catch(error){
-    console.log(error)
-  }
-}
+};
