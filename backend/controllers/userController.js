@@ -178,34 +178,44 @@ export const follow = async (req, res) => {
     console.log(error);
   }
 };
-export const unfollow = async(req,res)=>{
-try{
-  const { token } = req.cookies;
-  const data = jwt.verify(token, process.env.TOKEN_SECRET);
-  const loggedInId = data.userId;
-  const userId = req.params.id;
-  console.log("PORTS", loggedInId, userId);
-  const loggedinUser = await User.findById(loggedInId);
+export const unfollow = async (req, res) => {
+  try {
+      const { token } = req.cookies;
+      const data = jwt.verify(token, process.env.TOKEN_SECRET);
+      const loggedInUserId = data.userId;
+      const userId = req.params.id;
+      console.log("PORTS", loggedInUserId, userId);
+      
+      const loggedinUser = await User.findByIdAndUpdate(
+          loggedInUserId,
+          { $pull: { following: userId } },
+          { new: true }
+      );
 
-  const user = await User.findById(userId);
-  if (loggedinUser.following.includes(userId)) {
-    await User.updateOne({
-      $pull: { followers: loggedInId },
-    });
-    await User.updateOne({
-      $pull: { following: userId },
-    });
-  } else {
-    console.log(user);
-    return res.status(400).json({
-      message: `User has not followed yet`,
-    });
+      const user = await User.findByIdAndUpdate(
+          userId,
+          { $pull: { followers: loggedInUserId } },
+          { new: true }
+      );
+
+      if (!user) {
+          return res.status(400).json({
+              message: `User not found with id ${userId}`,
+          });
+      }
+
+      if (!loggedinUser.following.includes(userId)) {
+          return res.status(400).json({
+              message: `User has not followed yet`,
+          });
+      }
+
+      return res.status(200).json({
+          message: `${loggedinUser.name} just unfollowed ${user.name}`,
+          success: true,
+      });
+  } catch(error) {
+      console.log(error);
+      return res.status(500).json({ message: "Internal server error" });
   }
-  return res.status(200).json({
-    message: `${loggedinUser.name} justo unfollow to ${user.name}`,
-    success: true,
-  });
-}catch(error){
-  console.log(error)
-}
 }
