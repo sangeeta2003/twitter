@@ -4,6 +4,7 @@ import databaseConnection from './config/database.js';
 import cookieParser from 'cookie-parser';
 import userRoute from './routes/userRoute.js';
 import tweetRoute from './routes/tweetRoutes.js'
+import cors from "cors";
 
 dotenv.config({
     path: '.env'
@@ -17,7 +18,11 @@ app.use(express.urlencoded({
 }));
 app.use(express.json());
 app.use(cookieParser());
-
+const corsOptions={
+    origin:"http://localhost:3000",
+    credentials:true
+}
+app.use(cors(corsOptions))
 // api
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/tweet", tweetRoute);

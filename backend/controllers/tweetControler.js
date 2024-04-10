@@ -92,3 +92,27 @@ export const getAlltweets = async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+export const getFollowingtweets = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const loggedinUser = await User.findById(id);
+
+    
+    
+
+    const followingUserTweets = await Promise.all(
+      loggedinUser.following.map((otherUserId) => {
+        return Tweet.find({ userId: otherUserId });
+      })
+    );
+
+    return res.status(200).json({
+      tweets:[].concat(...followingUserTweets),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
